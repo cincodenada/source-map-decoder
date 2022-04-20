@@ -74,10 +74,12 @@ function decodeSegment(col, source, sourceLine, sourceCol, name, sources, names)
 
 function encodeMappings(mappings, sources) {
   const vlqState = Array(4).fill(0)
-  return Object.values(mappings).map(line => encodeLine(line, vlqState, sources)).join(';')
+  return Object.values(mappings).map(line => encodeLine(line, sources, vlqState)).join(';')
 }
 
 function encodeLine(line, sources, state) {
+  if(line.length === 1 && line[0] === "") { return "" }
+  state[0] = 0
   return line.map(seg => encodeSegment(seg, sources, state)).join(',')
 }
 
@@ -85,7 +87,7 @@ function encodeSegment(segment, sources, state) {
   // TODO: Deal with names
   let parts = segment.split(' ')
   const mapCol = parts[0]
-  const filename = parts.slice(2,-2).join(' ')
+  const filename = parts.slice(2,-1).join(' ')
   const [sourceLine, sourceCol] = parts[parts.length-1].split(':')
 
   const sourceIdx = sources.indexOf(filename)
